@@ -253,7 +253,7 @@ const TITLES = {
 };
 
 let currentView = "home";
-let prevView = "home";
+let navStack = [];
 let calCursor = new Date();
 let feedTab = "推荐";
 let room = { joined: false, mode: "公开房", cam: true, mic: false };
@@ -261,14 +261,25 @@ let timer = { running: false, phase: "focus", remaining: 25 * 60, focus: 25 * 60
 let tickId = null;
 
 function go(view) {
-  prevView = currentView;
+  if (view === currentView) return;
+  if (MAIN_VIEWS.includes(view)) {
+    navStack = [];
+  } else {
+    navStack.push(currentView);
+  }
   currentView = view;
   if (view === "home") calCursor = new Date();
   if (tickId) { clearInterval(tickId); tickId = null; }
   render();
   window.scrollTo(0, 0);
 }
-function back() { go(prevView === currentView ? "home" : prevView); }
+function back() {
+  currentView = navStack.length ? navStack.pop() : "home";
+  if (currentView === "home") calCursor = new Date();
+  if (tickId) { clearInterval(tickId); tickId = null; }
+  render();
+  window.scrollTo(0, 0);
+}
 
 /* ============================ Render ============================ */
 function topbar() {
